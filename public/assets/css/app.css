@@ -1,0 +1,89 @@
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+html {
+	font-size: 62.5%;
+}
+
+body {
+	color: #d9d9d9;
+	font: normal 1.4rem;
+	overflow-x: hidden;
+	user-select: none;
+}
+
+img {
+	pointer-events: none;
+}
+
+a {
+	text-decoration: none;
+}
+
+button {
+	cursor: pointer;
+}
+
+input,
+button,
+textarea {
+	outline: none !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+	width: 5px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: rgba(0, 0, 0, 0.1);
+	border-radius: 3px;
+	height: 90px;
+}
+
+::-webkit-scrollbar-track {
+	border-radius: 0px;
+	background: rgba(0, 0, 0, 0.05);
+}
+
+.scrollbar {
+	scrollbar-color: #c8c7cc rgba(41, 40, 40, 0.4);
+	scrollbar-width: 8px;
+}
+
+/* Media Query */
+@media only screen and (max-width: 480px) {
+	html {
+		font-size: 31.25%;
+	}
+}
+
+@media only screen and (max-width: 768px) {
+	html {
+		font-size: 37.5%;
+	}
+}
+
+@media only screen and (max-width: 1024px) {
+	html {
+		font-size: 43.75%;
+	}
+}
+
+@media only screen and (max-width: 1280px) {
+	html {
+		font-size: 50%;
+	}
+}
+
+@media only screen and (max-width: 1536px) {
+	html {
+		font-size: 56.25%;
+	}
+}

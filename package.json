@@ -1,0 +1,42 @@
+{
+	"name": "aws-translator",
+	"version": "1.0.0",
+	"description": "Amazon (AWS) Translate uses deep learning techniques to produce more accurate and fluent translation than traditional statistical and rule-based translation models",
+	"main": "index.js",
+	"scripts": {
+		"start": "webpack serve --open --config config/webpack.dev.js",
+		"build": "webpack --config config/webpack.prod.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/edward-joseph/aws-translator.git"
+	},
+	"keywords": [
+		"aws"
+	],
+	"author": "Ali Yaghoubi",
+	"license": "GNU",
+	"bugs": {
+		"url": "https://github.com/edward-joseph/aws-translator/issues"
+	},
+	"homepage": "https://github.com/edward-joseph/aws-translator#readme",
+	"devDependencies": {
+		"@babel/core": "^7.16.5",
+		"@babel/plugin-syntax-dynamic-import": "^7.8.3",
+		"@babel/preset-env": "^7.16.5",
+		"babel-loader": "^8.2.3",
+		"copy-webpack-plugin": "^10.2.0",
+		"css-loader": "^6.5.1",
+		"html-loader": "^3.0.1",
+		"html-webpack-plugin": "^5.5.0",
+		"sass-loader": "^12.4.0",
+		"style-loader": "^3.3.1",
+		"webpack": "^5.65.0",
+		"webpack-cli": "^4.9.1",
+		"webpack-dev-server": "^4.6.0",
+		"webpack-merge": "^5.8.0"
+	},
+	"dependencies": {
+		"aws-sdk": "^2.1046.0"
+	}
+}
