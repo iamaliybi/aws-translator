@@ -5,9 +5,9 @@ import supportedLanguages from './constants/supported-languages.json';
 /* Variables */
 let t;
 
-let source_language = 'en'; // English
+let source_lang = 'en'; // English
 
-let target_language = 'fa'; // Persian
+let target_lang = 'fa'; // Persian
 
 /* Development */
 const init = () => {
@@ -25,9 +25,34 @@ const init = () => {
 }
 
 const setup = () => {
+	/* Setup AWS Translator */
 	t = new AWS.Translate({
 		apiVersion: config.APP_VERSION
 	});
+
+	/* Setup Languages */
+	source_lang = handleLanInLs('source-lang', source_lang);
+	target_lang = handleLanInLs('target-lang', target_lang);
+}
+
+const handleLanInLs = (key, defaultLang) => {
+	let value = JSON.parse(localStorage.getItem(key));
+
+	if (!value) {
+		localStorage.setItem(key, defaultLang);
+		value = defaultLang;
+	}
+	else {
+		const findLang = supportedLanguages.find(lang => lang.code === defaultLang);
+
+		// If not valid lang
+		if (!findLang) {
+			localStorage.setItem(key, defaultLang);
+			value = defaultLang;
+		}
+	}
+
+	return value;
 }
 
 const handleError = (e) => {
@@ -35,17 +60,24 @@ const handleError = (e) => {
 }
 
 const translate = (text, cb) => {
-	t.translateText(
-		{
-			Text: text,
-			SourceLanguageCode: target_language,
-			TargetLanguageCode: source_language,
-		},
-		(e, data) => {
-			if (e) console.error(e);
-			else cb(data);
-		}
-	)
+	try {
+		t.translateText(
+			{
+				Text: text,
+				SourceLanguageCode: source_lang,
+				TargetLanguageCode: target_lang,
+			},
+			(e, data) => {
+				if (e) handleError(e);
+				else cb(data);
+			}
+		);
+
+		localStorage.setItem('source-lang', source_lang);
+		localStorage.setItem('target-lang', target_lang);
+	} catch (e) {
+		handleError(e);
+	}
 }
 
 document.addEventListener('DOMContentLoaded', init);
