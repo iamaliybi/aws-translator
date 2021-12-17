@@ -31,9 +31,6 @@ const appendChild = (parent, child) => {
 }
 
 const load = () => {
-	// Remove loading
-	document.getElementById("loading").remove();
-
 	// Add .wrapper
 	wrapper = createEl('div', {
 		class: 'wrapper'
@@ -41,8 +38,14 @@ const load = () => {
 
 	document.body.append(wrapper);
 
-	/* Add social-media buttons */
+	// Add social-media buttons
 	linkToSocialMedia();
+
+	// Remove loading
+	document.getElementById("loading").remove();
+
+	// return .wrapper
+	return wrapper;
 }
 
 const linkToSocialMedia = () => {
