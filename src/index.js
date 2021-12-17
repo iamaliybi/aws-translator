@@ -2,6 +2,10 @@ import * as AWS from 'aws-sdk';
 import config from './constants/aws-account.config.json';
 import supportedLanguages from './constants/supported-languages.json';
 
+import dom from './dom';
+
+import './assets/scss/app.scss';
+
 /* Variables */
 let t;
 
@@ -33,6 +37,9 @@ const setup = () => {
 	/* Setup Languages */
 	source_lang = handleLanInLs('source-lang', source_lang);
 	target_lang = handleLanInLs('target-lang', target_lang);
+
+	/* DOM load */
+	dom();
 }
 
 const handleLanInLs = (key, defaultLang) => {
