@@ -1,5 +1,5 @@
 {
-	"Region": "****",
-	"IDENTITY_POOL_ID": "****************",
+	"Region": "eu-west-1",
+	"IDENTITY_POOL_ID": "eu-west-1:594fa920-f7c9-46de-ba6a-5ca6d45fb833",
 	"APP_VERSION": "2017-07-01"
 }
