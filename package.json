@@ -37,6 +37,7 @@
 		"webpack-merge": "^5.8.0"
 	},
 	"dependencies": {
-		"aws-sdk": "^2.1046.0"
+		"aws-sdk": "^2.1046.0",
+		"util": "^0.12.4"
 	}
 }

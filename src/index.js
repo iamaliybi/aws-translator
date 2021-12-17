@@ -36,23 +36,17 @@ const setup = () => {
 }
 
 const handleLanInLs = (key, defaultLang) => {
-	let value = JSON.parse(localStorage.getItem(key));
+	const value = localStorage.getItem(key);
 
-	if (!value) {
-		localStorage.setItem(key, defaultLang);
-		value = defaultLang;
-	}
+	if (!value) localStorage.setItem(key, defaultLang);
 	else {
-		const findLang = supportedLanguages.find(lang => lang.code === defaultLang);
+		const findLang = supportedLanguages.find(lang => lang.code === value);
 
 		// If not valid lang
-		if (!findLang) {
-			localStorage.setItem(key, defaultLang);
-			value = defaultLang;
-		}
+		if (!findLang) localStorage.setItem(key, defaultLang);
 	}
 
-	return value;
+	return localStorage.getItem(key);
 }
 
 const handleError = (e) => {
