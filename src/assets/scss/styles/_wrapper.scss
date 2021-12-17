@@ -1,0 +1,49 @@
+& {
+	padding: 17.6rem 0;
+
+	.sections {
+		display: flex;
+		flex-direction: row;
+		border: 1px solid rgba(25, 26, 32, 0.5);
+		border-radius: 0.8rem;
+		overflow: hidden;
+
+		.section {
+			width: 50%;
+
+			textarea {
+				width: 100%;
+				min-height: 240px;
+				max-height: 50vh;
+				direction: ltr;
+				padding: 2.4rem;
+				line-height: 2;
+				font-size: 14px;
+				color: var(--t-text-color);
+				background-color: var(--t-bg-color);
+				border: 0;
+				letter-spacing: .5px;
+
+				&:disabled {
+					background-color: rgba(25, 26, 32, 0.5);
+				}
+
+				&::placeholder {
+					color: var(--t-text-color);
+				}
+			}
+		}
+	}
+}
+
+@media screen and (max-width: 768px) {
+	& {
+		.sections {
+			flex-direction: column;
+
+			.section {
+				width: 100%;
+			}
+		}
+	}
+}

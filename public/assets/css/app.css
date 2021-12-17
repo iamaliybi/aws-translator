@@ -36,6 +36,10 @@ textarea {
 	outline: none !important;
 }
 
+textarea {
+	resize: none;
+}
+
 /* Loading */
 #loading {
 	position: fixed;

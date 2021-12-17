@@ -10,14 +10,14 @@
 	-moz-transform: translateX(-50%);
 
 	.link {
-		background-color: #24262e;
+		background-color: var(--t-bg-color);
 		border-radius: 28%;
 		width: 6.4rem;
 		height: 6.4rem;
 		margin: 0 2.4rem;
 		display: flex;
 		justify-content: center;
-		color: #aaa;
+		color: var(--t-text-color);
 		align-items: center;
 		box-shadow: 0 0.5rem 1.5rem -0.5rem rgba(25, 26, 32, 0.5);
 
@@ -39,5 +39,11 @@
 		&:last-child {
 			margin-right: 0;
 		}
+	}
+}
+
+@media screen and (max-width: 768px) {
+	.social-media {
+		width: max-content;
 	}
 }
