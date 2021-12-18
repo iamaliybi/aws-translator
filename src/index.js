@@ -17,13 +17,21 @@ const TEXT_GROUP = {
 };
 
 /* Variables */
+const DEBOUNCE_TIME = 250;
+
 let t;
 
 let wrapper;
 
+let source_el;
 let source_lang = 'en'; // English
 
+let target_el;
 let target_lang = 'fa'; // Persian
+
+let input;
+
+let debounce;
 
 /* Development */
 const init = () => {
@@ -46,20 +54,15 @@ const setup = () => {
 		apiVersion: config.APP_VERSION
 	});
 
-	/* Translate Default Text */
-	translate("Hello").then(data => {
-		console.log(data.TranslatedText)
-	})
-
 	/* Setup Languages */
-	// source_lang = handleLanInLs('source-lang', source_lang);
-	// target_lang = handleLanInLs('target-lang', target_lang);
+	source_lang = handleLanInLs('source-lang', source_lang);
+	target_lang = handleLanInLs('target-lang', target_lang);
 
 	// /* DOM load */
-	// wrapper = dom();
+	wrapper = dom();
 
 	// /* Load inputs */
-	// load();
+	load();
 }
 
 const langIsRtl = (lang) => !!rtlLanguages.find(l => l === lang);
@@ -71,7 +74,7 @@ const load = () => {
 			{
 				class: 'sections w-full'
 			},
-			[loadSource(), loadTarget()]
+			[loadTarget(), loadSource()]
 		)
 	);
 }
@@ -79,37 +82,41 @@ const load = () => {
 const loadSource = () => {
 	const isRtl = langIsRtl(source_lang);
 
-	const sourceSection = createEl(
-		'section',
-		{
-			class: 'section'
-		},
-		createEl('textarea', {
-			class: `text-${isRtl ? 'r' : 'l'}`,
-			autofocus: true,
-		})
-	);
-
-	return sourceSection;
-}
-
-const loadTarget = () => {
-	const isRtl = langIsRtl(target_lang);
+	source_el = createEl('textarea', {
+		value: TEXT_GROUP.TargetInputPlaceholder,
+		class: `text-${isRtl ? 'r' : 'l'} dir-${isRtl ? 'ltr' : 'rtl'}`,
+		disabled: 1,
+	});
 
 	const targetSection = createEl(
 		'section',
 		{
 			class: 'section'
 		},
-		createEl('textarea', {
-			placeholder: translate('Translation'),
-			class: `text-${isRtl ? 'r' : 'l'}`,
-			autofocus: true,
-			disabled: 1,
-		})
+		source_el
 	);
 
 	return targetSection;
+}
+
+const loadTarget = () => {
+	const isRtl = langIsRtl(target_lang);
+
+	target_el = createEl('textarea', {
+		class: `text-${isRtl ? 'r' : 'l'} dir-${isRtl ? 'rtl' : 'ltr'}`,
+		autofocus: true,
+	});
+
+	const sourceSection = createEl(
+		'section',
+		{
+			class: 'section'
+		},
+		target_el
+	);
+
+	target_el.addEventListener('input', onInputChange);
+	return sourceSection;
 }
 
 const handleLanInLs = (key, defaultLang) => {
@@ -130,14 +137,30 @@ const handleError = (e) => {
 	console.error(e);
 }
 
-const translate = (text) => {
+const onInputChange = () => {
+	input = target_el.value;
+
+	if (debounce) clearTimeout(debounce);
+	debounce = setTimeout(translateSnapshot, DEBOUNCE_TIME);
+}
+
+const translateSnapshot = () => {
+	if (input.length === 0) target_el.value = TEXT_GROUP.TargetInputPlaceholder;
+	else {
+		translate(input).then(data => {
+			source_el.value = data.TranslatedText;
+		})
+	}
+}
+
+const translate = (text, lang = undefined) => {
 	try {
 		return new Promise((done, reject) => {
 			t.translateText(
 				{
 					Text: text,
 					SourceLanguageCode: source_lang,
-					TargetLanguageCode: target_lang,
+					TargetLanguageCode: lang ?? target_lang,
 				},
 				(e, data) => {
 					if (e) {
@@ -147,7 +170,7 @@ const translate = (text) => {
 					else done(data);
 				}
 			);
-	
+
 			localStorage.setItem('source-lang', source_lang);
 			localStorage.setItem('target-lang', target_lang);
 		})
