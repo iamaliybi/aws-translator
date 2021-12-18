@@ -13,7 +13,8 @@ import './assets/scss/app.scss';
 
 /* Default text */
 const TEXT_GROUP = {
-	TargetInputPlaceholder: 'Translate'
+	TargetInputPlaceholder: 'Translate',
+	TargetInputTranslating: 'Translating...',
 };
 
 /* Variables */
@@ -83,7 +84,7 @@ const loadSource = () => {
 	const isRtl = langIsRtl(source_lang);
 
 	source_el = createEl('textarea', {
-		value: TEXT_GROUP.TargetInputPlaceholder,
+		placeholder: TEXT_GROUP.TargetInputPlaceholder,
 		class: `text-${isRtl ? 'r' : 'l'} dir-${isRtl ? 'ltr' : 'rtl'}`,
 		disabled: 1,
 	});
@@ -140,12 +141,14 @@ const handleError = (e) => {
 const onInputChange = () => {
 	input = target_el.value;
 
+	source_el.value = TEXT_GROUP.TargetInputTranslating;
+	
 	if (debounce) clearTimeout(debounce);
 	debounce = setTimeout(translateSnapshot, DEBOUNCE_TIME);
 }
 
 const translateSnapshot = () => {
-	if (input.length === 0) target_el.value = TEXT_GROUP.TargetInputPlaceholder;
+	if (input.length === 0) source_el.value = TEXT_GROUP.TargetInputPlaceholder;
 	else {
 		translate(input).then(data => {
 			source_el.value = data.TranslatedText;
