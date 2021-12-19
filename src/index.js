@@ -59,11 +59,30 @@ const setup = () => {
 	source_lang = handleLanInLs('source-lang', source_lang);
 	target_lang = handleLanInLs('target-lang', target_lang);
 
-	// /* DOM load */
-	wrapper = dom();
+	// Translate page
+	translatePage();
+}
 
-	// /* Load inputs */
-	load();
+const translatePage = () => {
+	const promises = [];
+	Object.keys(TEXT_GROUP).forEach(key => {
+		promises.push(
+			new Promise(async (done) => {
+				const t = await translate(TEXT_GROUP[key]);
+				done([key, t.TranslatedText]);
+			})
+		);
+	});
+
+	Promise.all(promises).then((values) => {
+		values.forEach(([key, value]) => {
+			TEXT_GROUP[key] = value;
+		});
+
+		// Load document
+		wrapper = dom();
+		load();
+	});
 }
 
 const langIsRtl = (lang) => !!rtlLanguages.find(l => l === lang);
@@ -81,11 +100,11 @@ const load = () => {
 }
 
 const loadSource = () => {
-	const isRtl = langIsRtl(source_lang);
+	const isRtl = langIsRtl(target_lang);
 
 	source_el = createEl('textarea', {
 		placeholder: TEXT_GROUP.TargetInputPlaceholder,
-		class: `text-${isRtl ? 'r' : 'l'} dir-${isRtl ? 'ltr' : 'rtl'}`,
+		class: `text-${isRtl ? 'r' : 'l'} dir-${isRtl ? 'rtl' : 'ltr'}`,
 		disabled: 1,
 	});
 
@@ -101,7 +120,7 @@ const loadSource = () => {
 }
 
 const loadTarget = () => {
-	const isRtl = langIsRtl(target_lang);
+	const isRtl = langIsRtl(source_lang);
 
 	target_el = createEl('textarea', {
 		class: `text-${isRtl ? 'r' : 'l'} dir-${isRtl ? 'rtl' : 'ltr'}`,
@@ -142,7 +161,7 @@ const onInputChange = () => {
 	input = target_el.value;
 
 	source_el.value = TEXT_GROUP.TargetInputTranslating;
-	
+
 	if (debounce) clearTimeout(debounce);
 	debounce = setTimeout(translateSnapshot, DEBOUNCE_TIME);
 }
