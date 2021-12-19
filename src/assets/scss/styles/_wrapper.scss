@@ -7,6 +7,7 @@
 		border: 1px solid rgba(25, 26, 32, 0.5);
 		border-radius: 0.8rem;
 		overflow: hidden;
+		margin: 0 0 4.8rem 0;
 
 		.section {
 			width: 50%;
@@ -21,7 +22,7 @@
 				color: var(--t-text-color);
 				background-color: var(--t-bg-color);
 				border: 0;
-				letter-spacing: .5px;
+				letter-spacing: 0.5px;
 
 				&:disabled {
 					background-color: rgba(25, 26, 32, 0.5);
@@ -31,6 +32,24 @@
 					color: var(--t-text-color);
 				}
 			}
+		}
+	}
+
+	.switcher {
+		height: 48px;
+		align-items: center;
+		max-width: 80%;
+		width: 100%;
+		justify-content: space-between;
+		margin: 0 auto;
+
+		select {
+			text-align: center;
+			height: 100%;
+			color: #a5a5a5;
+			font-size: 1.4rem;
+			background-color: transparent;
+			border-color: transparent;
 		}
 	}
 }

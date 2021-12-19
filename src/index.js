@@ -97,14 +97,19 @@ const load = () => {
 			[loadTarget(), loadSource()]
 		)
 	);
+
+	loadLangSwitcher();
+}
+
+const loadAlignClasses = (lang) => {
+	const isRtl = langIsRtl(lang);
+	return `text-${isRtl ? 'r' : 'l'} dir-${isRtl ? 'rtl' : 'ltr'}`;
 }
 
 const loadSource = () => {
-	const isRtl = langIsRtl(target_lang);
-
 	source_el = createEl('textarea', {
 		placeholder: TEXT_GROUP.TargetInputPlaceholder,
-		class: `text-${isRtl ? 'r' : 'l'} dir-${isRtl ? 'rtl' : 'ltr'}`,
+		class: loadAlignClasses(target_lang),
 		disabled: 1,
 	});
 
@@ -120,10 +125,8 @@ const loadSource = () => {
 }
 
 const loadTarget = () => {
-	const isRtl = langIsRtl(source_lang);
-
 	target_el = createEl('textarea', {
-		class: `text-${isRtl ? 'r' : 'l'} dir-${isRtl ? 'rtl' : 'ltr'}`,
+		class: loadAlignClasses(source_lang),
 		autofocus: true,
 	});
 
@@ -139,12 +142,51 @@ const loadTarget = () => {
 	return sourceSection;
 }
 
+const createSwitcher = (value, options = [], cb = undefined) => {
+	const minifiedOptions = [];
+	options.forEach(lang => {
+		minifiedOptions.push(
+			createEl(
+				'option',
+				{
+					value: lang.id,
+				},
+				lang.name
+			)
+		);
+	});
+
+	const s = createEl(
+		'select',
+		{ value },
+		minifiedOptions
+	);
+
+	if (cb) s.addEventListener('change', e => cb(e.target.value));
+	return s;
+}
+
+const loadLangSwitcher = () => {
+	const sc = createSwitcher(source_lang, supportedLanguages, updateSourceLang);
+	const tr = createSwitcher(target_lang, supportedLanguages, updateTargetLang);
+
+	wrapper.append(
+		createEl(
+			'div',
+			{
+				class: 'switcher flex'
+			},
+			[sc, tr]
+		)
+	)
+}
+
 const handleLanInLs = (key, defaultLang) => {
 	const value = localStorage.getItem(key);
 
 	if (!value) localStorage.setItem(key, defaultLang);
 	else {
-		const findLang = supportedLanguages.find(lang => lang.code === value);
+		const findLang = supportedLanguages.find(lang => lang.id === value);
 
 		// If not valid lang
 		if (!findLang) localStorage.setItem(key, defaultLang);
@@ -175,6 +217,16 @@ const translateSnapshot = () => {
 	}
 }
 
+/* Update methods */
+const updateSourceLang = () => {
+	//
+}
+
+const updateTargetLang = () => {
+	//
+}
+
+/* Translate */
 const translate = (text, lang = undefined) => {
 	try {
 		return new Promise((done, reject) => {
