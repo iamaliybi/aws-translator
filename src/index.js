@@ -59,30 +59,33 @@ const setup = () => {
 	source_lang = handleLanInLs('source-lang', source_lang);
 	target_lang = handleLanInLs('target-lang', target_lang);
 
-	// Translate page
-	translatePage();
-}
-
-const translatePage = () => {
-	const promises = [];
-	Object.keys(TEXT_GROUP).forEach(key => {
-		promises.push(
-			new Promise(async (done) => {
-				const t = await translate(TEXT_GROUP[key]);
-				done([key, t.TranslatedText]);
-			})
-		);
-	});
-
-	Promise.all(promises).then((values) => {
-		values.forEach(([key, value]) => {
-			TEXT_GROUP[key] = value;
-		});
-
-		// Load document
+	// Translate page & Load
+	translatePage().then(() => {
 		wrapper = dom();
 		load();
 	});
+}
+
+const translatePage = () => {
+	return new Promise(done => {
+		const promises = [];
+		Object.keys(TEXT_GROUP).forEach(key => {
+			promises.push(
+				new Promise(async (done) => {
+					const t = await translate(TEXT_GROUP[key]);
+					done([key, t.TranslatedText]);
+				})
+			);
+		});
+
+		Promise.all(promises).then((values) => {
+			values.forEach(([key, value]) => {
+				TEXT_GROUP[key] = value;
+			});
+
+			done();
+		});
+	})
 }
 
 const langIsRtl = (lang) => !!rtlLanguages.find(l => l === lang);
@@ -142,15 +145,16 @@ const loadTarget = () => {
 	return sourceSection;
 }
 
-const createSwitcher = (value, options = [], cb = undefined) => {
+const createSwitcher = (value, name, options = [], cb = undefined) => {
 	const minifiedOptions = [];
 	options.forEach(lang => {
+		const o = { value: lang.id };
+		if (value === lang.id) o.selected = true;
+
 		minifiedOptions.push(
 			createEl(
 				'option',
-				{
-					value: lang.id,
-				},
+				o,
 				lang.name
 			)
 		);
@@ -158,7 +162,7 @@ const createSwitcher = (value, options = [], cb = undefined) => {
 
 	const s = createEl(
 		'select',
-		{ value },
+		{ name },
 		minifiedOptions
 	);
 
@@ -167,8 +171,8 @@ const createSwitcher = (value, options = [], cb = undefined) => {
 }
 
 const loadLangSwitcher = () => {
-	const sc = createSwitcher(source_lang, supportedLanguages, updateSourceLang);
-	const tr = createSwitcher(target_lang, supportedLanguages, updateTargetLang);
+	const sc = createSwitcher(source_lang, 'source_lang', supportedLanguages, updateSourceLang);
+	const tr = createSwitcher(target_lang, 'target_lang', supportedLanguages, updateTargetLang);
 
 	wrapper.append(
 		createEl(
@@ -218,12 +222,22 @@ const translateSnapshot = () => {
 }
 
 /* Update methods */
-const updateSourceLang = () => {
-	//
+const updateSourceLang = value => {
+	source_lang = value;
+	if (String(source_el.value).length > 0) {
+		translate(source_el.value, value).then(data => {
+			target_el.value = data.TranslatedText;
+		});
+	}
 }
 
-const updateTargetLang = () => {
-	//
+const updateTargetLang = value => {
+	target_lang = value;
+	if (String(target_el.value).length > 0) {
+		translate(target_el.value, value).then(data => {
+			source_el.value = data.TranslatedText;
+		});
+	}
 }
 
 /* Translate */
