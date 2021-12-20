@@ -13,7 +13,7 @@ html {
 body {
 	background-color: #24262e;
 	color: #d9d9d9;
-	font-family: 'Readex Pro', sans-serif;
+	font-family: 'IRANSansWeb';
 	overflow-x: hidden;
 	user-select: none;
 }
@@ -34,6 +34,7 @@ input,
 button,
 select,
 textarea {
+	font-family: 'IRANSansWeb';
 	outline: none !important;
 }
 
