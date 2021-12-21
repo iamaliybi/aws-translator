@@ -88,7 +88,15 @@ const translatePage = () => {
 	})
 }
 
-const langIsRtl = (lang) => !!rtlLanguages.find(l => l === lang);
+const alignByLang = (el, lang) => {
+	const isRtl = !!rtlLanguages.find(l => l === lang);
+	
+	const textAlign = isRtl ? 'text-right' : 'text-left';
+	const direction = isRtl ? 'rtl' : 'ltr';
+
+	el.style.textAlign = textAlign;
+	el.style.direction = direction;
+}
 
 const load = () => {
 	wrapper.append(
@@ -104,17 +112,12 @@ const load = () => {
 	loadLangSwitcher();
 }
 
-const loadAlignClasses = (lang) => {
-	const isRtl = langIsRtl(lang);
-	return `text-${isRtl ? 'r' : 'l'} dir-${isRtl ? 'rtl' : 'ltr'}`;
-}
-
 const loadSource = () => {
 	source_el = createEl('textarea', {
 		placeholder: TEXT_GROUP.TargetInputPlaceholder,
-		class: loadAlignClasses(target_lang),
 		disabled: 1,
 	});
+	alignByLang(source_el, target_lang);
 
 	const targetSection = createEl(
 		'section',
@@ -129,9 +132,9 @@ const loadSource = () => {
 
 const loadTarget = () => {
 	target_el = createEl('textarea', {
-		class: loadAlignClasses(source_lang),
 		autofocus: true,
 	});
+	alignByLang(target_el, source_lang);
 
 	const sourceSection = createEl(
 		'section',
@@ -229,6 +232,8 @@ const updateSourceLang = value => {
 			target_el.value = data.TranslatedText;
 		});
 	}
+
+	alignByLang(target_el, source_lang);
 }
 
 const updateTargetLang = value => {
@@ -238,6 +243,8 @@ const updateTargetLang = value => {
 			source_el.value = data.TranslatedText;
 		});
 	}
+
+	alignByLang(source_el, target_lang);
 }
 
 /* Translate */

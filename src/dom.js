@@ -4,7 +4,7 @@ export const createEl = (type, props = {}, ...children) => {
 	const el = document.createElement(type);
 
 	Object.entries(props).forEach(([name, value]) => {
-		el.setAttribute(name, value.toString())
+		if (value !== undefined) el.setAttribute(name, value.toString());
 	})
 
 	children.forEach((child) => {
