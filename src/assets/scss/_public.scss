@@ -18,3 +18,11 @@
 	display: flex;
 	flex: 1 1 auto;
 }
+
+.btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-width: 0px;
+	background-color: transparent;
+}

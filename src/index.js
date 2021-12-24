@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 
 // DOM
-import dom, { createEl } from './dom';
+import dom, { createEl, textToHtml } from './dom';
 
 // Constants
 import config from './constants/aws-account.config.json';
@@ -14,7 +14,6 @@ import './assets/scss/app.scss';
 /* Default text */
 const TEXT_GROUP = {
 	TargetInputPlaceholder: 'Translate',
-	TargetInputTranslating: 'Translating...',
 };
 
 /* Variables */
@@ -24,10 +23,12 @@ let t;
 
 let wrapper;
 
-let source_el;
+let source_input;
+let source_select;
 let source_lang = 'en'; // English
 
-let target_el;
+let target_input;
+let target_select;
 let target_lang = 'fa'; // Persian
 
 let input;
@@ -90,7 +91,7 @@ const translatePage = () => {
 
 const alignByLang = (el, lang) => {
 	const isRtl = !!rtlLanguages.find(l => l === lang);
-	
+
 	const textAlign = isRtl ? 'text-right' : 'text-left';
 	const direction = isRtl ? 'rtl' : 'ltr';
 
@@ -113,38 +114,38 @@ const load = () => {
 }
 
 const loadSource = () => {
-	source_el = createEl('textarea', {
+	source_input = createEl('textarea', {
 		placeholder: TEXT_GROUP.TargetInputPlaceholder,
 		disabled: 1,
 	});
-	alignByLang(source_el, target_lang);
+	alignByLang(source_input, target_lang);
 
 	const targetSection = createEl(
 		'section',
 		{
 			class: 'section'
 		},
-		source_el
+		source_input
 	);
 
 	return targetSection;
 }
 
 const loadTarget = () => {
-	target_el = createEl('textarea', {
+	target_input = createEl('textarea', {
 		autofocus: true,
 	});
-	alignByLang(target_el, source_lang);
+	alignByLang(target_input, source_lang);
 
 	const sourceSection = createEl(
 		'section',
 		{
 			class: 'section'
 		},
-		target_el
+		target_input
 	);
 
-	target_el.addEventListener('input', onInputChange);
+	target_input.addEventListener('input', onInputChange);
 	return sourceSection;
 }
 
@@ -174,8 +175,15 @@ const createSwitcher = (value, name, options = [], cb = undefined) => {
 }
 
 const loadLangSwitcher = () => {
-	const sc = createSwitcher(source_lang, 'source_lang', supportedLanguages, updateSourceLang);
-	const tr = createSwitcher(target_lang, 'target_lang', supportedLanguages, updateTargetLang);
+	source_select = createSwitcher(source_lang, 'source_lang', supportedLanguages, updateSourceLang);
+	target_select = createSwitcher(target_lang, 'target_lang', supportedLanguages, updateTargetLang);
+
+	const switcher = createEl(
+		'button',
+		{ class: 'btn' },
+		textToHtml(`<svg width="24px" height="24px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" color="rgb(200, 200, 200)"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M320 120l48 48-48 48"/><path d="M352 168H144a80.24 80.24 0 00-80 80v16M192 392l-48-48 48-48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path d="M160 344h208a80.24 80.24 0 0080-80v-16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>`)
+	);
+	switcher.addEventListener('click', switchBetweenLangs);
 
 	wrapper.append(
 		createEl(
@@ -183,7 +191,7 @@ const loadLangSwitcher = () => {
 			{
 				class: 'switcher flex'
 			},
-			[sc, tr]
+			[source_select, switcher, target_select]
 		)
 	)
 }
@@ -207,44 +215,68 @@ const handleError = (e) => {
 }
 
 const onInputChange = () => {
-	input = target_el.value;
-
-	source_el.value = TEXT_GROUP.TargetInputTranslating;
+	input = target_input.value;
 
 	if (debounce) clearTimeout(debounce);
 	debounce = setTimeout(translateSnapshot, DEBOUNCE_TIME);
 }
 
 const translateSnapshot = () => {
-	if (input.length === 0) source_el.value = TEXT_GROUP.TargetInputPlaceholder;
+	if (input.length === 0) source_input.value = TEXT_GROUP.TargetInputPlaceholder;
 	else {
 		translate(input).then(data => {
-			source_el.value = data.TranslatedText;
+			source_input.value = data.TranslatedText;
 		})
 	}
 }
 
-/* Update methods */
-const updateSourceLang = value => {
-	source_lang = value;
-	if (String(source_el.value).length > 0) {
-		translate(source_el.value, value).then(data => {
-			target_el.value = data.TranslatedText;
-		});
-	}
+const switchBetweenLangs = () => {
+	try {
+		// Find indexes
+		const targetIndex = supportedLanguages.findIndex(lang => lang.id === target_lang);
+		const sourceIndex = supportedLanguages.findIndex(lang => lang.id === source_lang);
 
-	alignByLang(target_el, source_lang);
+		if (!targetIndex || !sourceIndex) throw new Error("The desired language not found");
+
+		// Get languages
+		const targetOld = target_lang;
+		const sourceOld = source_lang;
+
+		// Update target lang
+		source_select.selectedIndex = targetIndex;
+		updateTargetLang(sourceOld);
+
+		// Update source lang
+		target_select.selectedIndex = sourceIndex;
+		updateSourceLang(targetOld);
+	} catch (e) {
+		console.error(e.message);
+	}
 }
 
-const updateTargetLang = value => {
-	target_lang = value;
-	if (String(target_el.value).length > 0) {
-		translate(target_el.value, value).then(data => {
-			source_el.value = data.TranslatedText;
+/* Update methods */
+const updateSourceLang = lang => {
+	source_lang = lang;
+	if (String(source_input.value).length > 0) {
+		translate(source_input.value, lang).then(data => {
+			target_input.value = data.TranslatedText;
 		});
 	}
 
-	alignByLang(source_el, target_lang);
+	localStorage.setItem('source-lang', source_lang);
+	alignByLang(target_input, source_lang);
+}
+
+const updateTargetLang = lang => {
+	target_lang = lang;
+	if (String(target_input.value).length > 0) {
+		translate(target_input.value, lang).then(data => {
+			source_input.value = data.TranslatedText;
+		});
+	}
+
+	localStorage.setItem('target-lang', target_lang);
+	alignByLang(source_input, target_lang);
 }
 
 /* Translate */
@@ -258,16 +290,13 @@ const translate = (text, lang = undefined) => {
 					TargetLanguageCode: lang ?? target_lang,
 				},
 				(e, data) => {
-					if (e) {
+					if (data) done(data);
+					else {
 						handleError(e);
 						reject(e);
 					}
-					else done(data);
 				}
 			);
-
-			localStorage.setItem('source-lang', source_lang);
-			localStorage.setItem('target-lang', target_lang);
 		})
 	} catch (e) {
 		handleError(e);
